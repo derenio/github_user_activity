@@ -1,0 +1,10 @@
+ML tuple
+- hour in day,
+- week of year,
+- for each of 3(?) top repos:
+	+ repo1:
+		* number of commits,
+		* number of issues,
+		* number of comments,
+	+ repo2...
+	+ repo3...
