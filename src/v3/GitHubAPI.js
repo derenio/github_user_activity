@@ -6,10 +6,6 @@ import { GITHUB_API_URL, SINCE } from '../config';
 class GitHubAPI {
   constructor(token) {
     this.token = token;
-    this.getOrgRepos = this.getOrgRepos.bind(this);
-    this.getRepoIssues = this.getRepoIssues.bind(this);
-    this.getRepoIssueComments = this.getRepoIssueComments.bind(this);
-    this.getRepoCommits = this.getRepoCommits.bind(this);
   }
 
   request(options) {
@@ -48,7 +44,7 @@ class GitHubAPI {
     return getPages(url, []);
   }
 
-  async getOrgRepos(user) {
+  getOrgRepos = async (user) => {
     const path = `/users/${user}/repos`;
     const qs = {
       type: 'all',
@@ -56,7 +52,7 @@ class GitHubAPI {
     return this.request({ path, qs });
   }
 
-  async getRepoIssues(owner, repo) {
+  getRepoIssues = async (owner, repo) => {
     const path = `/repos/${owner}/${repo}/issues`;
     const qs = {
       since: SINCE,
@@ -67,7 +63,7 @@ class GitHubAPI {
     return this.request({ path, qs });
   }
 
-  async getRepoIssueComments(owner, repo) {
+  getRepoIssueComments = async (owner, repo) => {
     const path = `/repos/${owner}/${repo}/issues/comments`;
     const qs = {
       since: SINCE,
@@ -77,7 +73,7 @@ class GitHubAPI {
     return this.request({ path, qs });
   }
 
-  async getRepoCommits(owner, repo) {
+  getRepoCommits = async (owner, repo) => {
     const path = `/repos/${owner}/${repo}/commits`;
     const qs = {
       since: SINCE,
