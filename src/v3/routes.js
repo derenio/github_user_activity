@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getRepoCommits, getRepoIssueComments, getOrgRepos, getRepoIssues } from './github';
+import { getRepoCommits, getRepoIssueComments, getOrgRepos, getRepoIssues } from './views';
 
 
 const v3Router = Router();
