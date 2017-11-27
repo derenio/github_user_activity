@@ -1,4 +1,4 @@
-import request from 'request';
+import request from 'request-promise';
 import linkHeaderParser from 'parse-link-header';
 import { GITHUB_API_URL, SINCE } from '../config';
 
@@ -6,9 +6,13 @@ import { GITHUB_API_URL, SINCE } from '../config';
 class GitHubAPI {
   constructor(token) {
     this.token = token;
+    this.getOrgRepos = this.getOrgRepos.bind(this);
+    this.getRepoIssues = this.getRepoIssues.bind(this);
+    this.getRepoIssueComments = this.getRepoIssueComments.bind(this);
+    this.getRepoCommits = this.getRepoCommits.bind(this);
   }
 
-  request(options, callback) {
+  request(options) {
     const { path, qs } = options;
     const url = `${GITHUB_API_URL}${path}`;
 
@@ -22,48 +26,37 @@ class GitHubAPI {
         Authorization: `Bearer ${this.token}`,
         'User-Agent': 'Awesome-Octocat-App',
       },
+      json: true,
+      resolveWithFullResponse: true,
     };
 
-    function getPages(pageUrl, acc) {
+    const getPages = async (pageUrl, acc) => {
       const pageOpts = { ...opts, url: pageUrl };
-      request.get(pageOpts, (error, res, body) => {
-        if (error) {
-          callback(error);
-          return;
-        }
-        let json;
-        try {
-          json = JSON.parse(body);
-        } catch (e) {
-          callback(e);
-          return;
-        }
-        const link = linkHeaderParser(res.headers.link);
-        if (link && link.next) {
-          const newAcc = acc.concat(json);
-          getPages(link.next.url, newAcc);
-        } else {
-          let data = json;
-          if (acc) {
-            data = acc.concat(json);
-          }
-          callback(null, data);
-        }
-      });
-    }
+      const res = await request.get(pageOpts);
+      let data = res.body;
+      const link = linkHeaderParser(res.headers.link);
+      if (link && link.next) {
+        const newAcc = acc.concat(data);
+        return getPages(link.next.url, newAcc);
+      }
+      if (acc) {
+        data = acc.concat(data);
+      }
+      return data;
+    };
 
-    getPages(url, [], callback);
+    return getPages(url, []);
   }
 
-  getOrgRepos(user, callback) {
+  async getOrgRepos(user) {
     const path = `/users/${user}/repos`;
     const qs = {
       type: 'all',
     };
-    this.request({ path, qs }, callback);
+    return this.request({ path, qs });
   }
 
-  getRepoIssues(owner, repo, callback) {
+  async getRepoIssues(owner, repo) {
     const path = `/repos/${owner}/${repo}/issues`;
     const qs = {
       since: SINCE,
@@ -71,27 +64,27 @@ class GitHubAPI {
       sort: 'created',
       direction: 'asc',
     };
-    this.request({ path, qs }, callback);
+    return this.request({ path, qs });
   }
 
-  getRepoIssueComments(owner, repo, callback) {
+  async getRepoIssueComments(owner, repo) {
     const path = `/repos/${owner}/${repo}/issues/comments`;
     const qs = {
       since: SINCE,
       sort: 'created',
       direction: 'asc',
     };
-    this.request({ path, qs }, callback);
+    return this.request({ path, qs });
   }
 
-  getRepoCommits(owner, repo, callback) {
+  async getRepoCommits(owner, repo) {
     const path = `/repos/${owner}/${repo}/commits`;
     const qs = {
       since: SINCE,
       sort: 'created',
       direction: 'asc',
     };
-    this.request({ path, qs }, callback);
+    return this.request({ path, qs });
   }
 }
 

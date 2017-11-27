@@ -3,7 +3,7 @@ import { getRepoCommits, getRepoIssueComments, getOrgRepos, getRepoIssues } from
 
 
 const v3Router = Router();
-v3Router.route('/repos/:org/')
+v3Router.route('/users/:org/repos')
   .get(getOrgRepos);
 v3Router.route('/repos/:org/:repo/issues')
   .get(getRepoIssues);

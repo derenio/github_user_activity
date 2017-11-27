@@ -1,54 +1,49 @@
 import GitHubAPI from './GitHubAPI';
 import { GITHUB_TOKEN } from '../config';
-import { parseComment, parseCommit, parseIssue, parseRepo } from './parsers';
+import { parseCommit, parseIssue, parseIssueComment, parseRepo } from './parsers';
 
 
 const github = new GitHubAPI(GITHUB_TOKEN);
 
 
-export function getOrgRepos(req, res) {
+async function getForEnpointAndParser(req, res, endpoint, parser) {
+  const { org, repo } = req.params;
+  let data;
+  try {
+    data = await endpoint(org, repo);
+  } catch (error) {
+    res.status(500).json(error);
+    return;
+  }
+  const parsedData = data.map(i => parser(i, org, repo));
+  res.json(parsedData);
+}
+
+
+export async function getOrgRepos(req, res) {
+  return getForEnpointAndParser(req, res, github.getOrgRepos, parseRepo);
+}
+
+
+export async function getRepoIssues(req, res) {
+  return getForEnpointAndParser(req, res, github.getRepoIssues, parseIssue);
+}
+
+
+export async function getRepoIssueComments(req, res) {
+  return getForEnpointAndParser(
+    req, res,
+    github.getRepoIssueComments,
+    parseIssueComment,
+  );
+}
+
+
+export async function getRepoCommits(req, res) {
+  return getForEnpointAndParser(req, res, github.getRepoCommits, parseCommit);
+}
+
+
+export function getOrgUserActivities(req, res) {
   const { org } = req.params;
-  github.getOrgRepos(org, (error, data) => {
-    if (error) {
-      res.status(500).end(error);
-    }
-    const parsedData = data.map(r => parseRepo(r));
-    res.json(parsedData);
-  });
-}
-
-
-export function getRepoIssues(req, res) {
-  const { org, repo } = req.params;
-  github.getRepoIssues(org, repo, (error, data) => {
-    if (error) {
-      res.status(500).end(error);
-    }
-    const parsedData = data.map(i => parseIssue(i, org, repo));
-    res.json(parsedData);
-  });
-}
-
-
-export function getRepoIssueComments(req, res) {
-  const { org, repo } = req.params;
-  github.getRepoIssueComments(org, repo, (error, data) => {
-    if (error) {
-      res.status(500).end(error);
-    }
-    const parsedData = data.map(c => parseComment(c, org, repo));
-    res.json(parsedData);
-  });
-}
-
-
-export function getRepoCommits(req, res) {
-  const { org, repo } = req.params;
-  github.getRepoCommits(org, repo, (error, data) => {
-    if (error) {
-      res.status(500).end(error);
-    }
-    const parsedData = data.map(c => parseCommit(c, org, repo));
-    res.json(parsedData);
-  });
 }
