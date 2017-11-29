@@ -1,6 +1,7 @@
-import request from 'request-promise';
 import linkHeaderParser from 'parse-link-header';
+import request from 'request-promise';
 import { GITHUB_API_URL, SINCE } from '../config';
+import { parseCommit, parseIssue, parseIssueComment, parseRepo } from './parsers';
 
 
 class GitHubAPI {
@@ -49,7 +50,9 @@ class GitHubAPI {
     const qs = {
       type: 'all',
     };
-    return this.request({ path, qs });
+    const repos = await this.request({ path, qs });
+    const parsedRepos = repos.map(i => parseRepo(i));
+    return parsedRepos;
   }
 
   getRepoIssues = async (owner, repo) => {
@@ -60,7 +63,9 @@ class GitHubAPI {
       sort: 'created',
       direction: 'asc',
     };
-    return this.request({ path, qs });
+    const issues = await this.request({ path, qs });
+    const parsedIssues = issues.map(i => parseIssue(i, owner, repo));
+    return parsedIssues;
   }
 
   getRepoIssueComments = async (owner, repo) => {
@@ -70,7 +75,9 @@ class GitHubAPI {
       sort: 'created',
       direction: 'asc',
     };
-    return this.request({ path, qs });
+    const comments = await this.request({ path, qs });
+    const parsedComments = comments.map(i => parseIssueComment(i, owner, repo));
+    return parsedComments;
   }
 
   getRepoCommits = async (owner, repo) => {
@@ -80,7 +87,9 @@ class GitHubAPI {
       sort: 'created',
       direction: 'asc',
     };
-    return this.request({ path, qs });
+    const commits = await this.request({ path, qs });
+    const parsedCommits = commits.map(i => parseCommit(i, owner, repo));
+    return parsedCommits;
   }
 }
 

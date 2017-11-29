@@ -1,12 +1,11 @@
 import GitHubAPI from './GitHubAPI';
 import { GITHUB_TOKEN } from '../config';
-import { parseCommit, parseIssue, parseIssueComment, parseRepo } from './parsers';
 
 
 const github = new GitHubAPI(GITHUB_TOKEN);
 
 
-async function getForEnpointAndParser(req, res, endpoint, parser) {
+async function getForEnpoint(req, res, endpoint) {
   const { org, repo } = req.params;
   let data;
   try {
@@ -15,32 +14,27 @@ async function getForEnpointAndParser(req, res, endpoint, parser) {
     res.status(500).json(error);
     return;
   }
-  const parsedData = data.map(i => parser(i, org, repo));
-  res.json(parsedData);
+  res.json(data);
 }
 
 
 export async function getOrgRepos(req, res) {
-  return getForEnpointAndParser(req, res, github.getOrgRepos, parseRepo);
+  return getForEnpoint(req, res, github.getOrgRepos);
 }
 
 
 export async function getRepoIssues(req, res) {
-  return getForEnpointAndParser(req, res, github.getRepoIssues, parseIssue);
+  return getForEnpoint(req, res, github.getRepoIssues);
 }
 
 
 export async function getRepoIssueComments(req, res) {
-  return getForEnpointAndParser(
-    req, res,
-    github.getRepoIssueComments,
-    parseIssueComment,
-  );
+  return getForEnpoint(req, res, github.getRepoIssueComments);
 }
 
 
 export async function getRepoCommits(req, res) {
-  return getForEnpointAndParser(req, res, github.getRepoCommits, parseCommit);
+  return getForEnpoint(req, res, github.getRepoCommits);
 }
 
 
