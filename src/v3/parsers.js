@@ -32,14 +32,18 @@ export function parseIssue(issue, org, repo) {
     updatedAt: updated_at,
   };
 }
-const COMMENT_ISSUE_NUMBER_RE = /^https:\/\/github.com\/[^/]*\/[^/]*\/issues\/(\d*)#issuecomment-(\d*)$/;
+const COMMENT_ISSUE_NUMBER_RE = /^https:\/\/github.com\/[^/]*\/[^/]*\/(?:issues|pull)\/(\d*)#issuecomment-(\d*)$/;
 
 
 export function parseIssueComment(comment, org, repo) {
   const {
     html_url, body, user, created_at, updated_at,
   } = comment;
-  const issueNumber = parseInt(COMMENT_ISSUE_NUMBER_RE.exec(html_url)[1], 10);
+  let issueNumber = null;
+  const urlMatch = COMMENT_ISSUE_NUMBER_RE.exec(html_url);
+  if (urlMatch) {
+    issueNumber = parseInt(urlMatch[1], 10);
+  }
   return {
     html_url,
     org,
@@ -53,15 +57,16 @@ export function parseIssueComment(comment, org, repo) {
 }
 
 
-export function parseCommit(commit, org, repo) {
+export function parseCommit(commitData, org, repo) {
   const {
-    sha, html_url, author, committer, created_at, updated_at,
-  } = commit;
+    sha, html_url, commit, author, committer, created_at, updated_at,
+  } = commitData;
   return {
     html_url,
     org,
     repo,
     sha,
+    message: commit && commit.message,
     author: author && author.login,
     committer: committer && committer.login,
     createdAt: created_at,
