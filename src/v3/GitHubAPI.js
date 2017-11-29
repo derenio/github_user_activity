@@ -1,7 +1,10 @@
 import linkHeaderParser from 'parse-link-header';
 import request from 'request-promise';
 import { GITHUB_API_URL, SINCE } from '../config';
+import { Logger } from '../libs/logger';
 import { parseCommit, parseIssue, parseIssueComment, parseRepo } from './parsers';
+
+const log = Logger('v3/GitHubAPI');
 
 
 class GitHubAPI {
@@ -28,6 +31,7 @@ class GitHubAPI {
     };
 
     const getPages = async (pageUrl, acc) => {
+      log.info(`GET ${pageUrl}`);
       const pageOpts = { ...opts, url: pageUrl };
       const res = await request.get(pageOpts);
       let data = res.body;
