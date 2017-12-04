@@ -3,7 +3,7 @@ import { GITHUB_TOKEN, SINCE } from '../config';
 import { Logger } from '../libs/logger';
 
 const github = new GitHubAPI(GITHUB_TOKEN);
-const log = Logger('v3/GitHubAPI');
+const log = Logger('v3/controllers');
 
 
 async function getForEnpoint(req, res, endpoint) {

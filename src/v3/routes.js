@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   getOrgRepos, getOrgUserActivities, getRepoCommits, getRepoIssueComments,
-  getRepoIssues } from './views';
+  getRepoIssues } from './controllers';
 
 
 const v3Router = Router();
