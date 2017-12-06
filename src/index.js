@@ -10,8 +10,12 @@ const app = express();
 // Configure Express
 app.set('json spaces', 2);
 app.set('view engine', 'pug');
+app.set('views', 'src');
 
 // Routes
+app.get('/', (req, res) => {
+  res.render('home');
+});
 app.use('/analysis', analysisRouter);
 app.use('/graphql', graphqlRouter);
 app.use('/v3', v3Router);
