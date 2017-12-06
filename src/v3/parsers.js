@@ -8,6 +8,8 @@ export function parseRepo(repo) {
     html_url,
     owner: owner && owner.login,
     name,
+    dayOfWeek: new Date(created_at).getDay(),
+    hourOfDay: new Date(created_at).getHours(),
     createdAt: created_at,
     updatedAt: updated_at,
   };
@@ -34,6 +36,8 @@ export function parseIssue(issue, org, repo) {
     body,
     author: user && user.login,
     assignees: assignees.map(a => a && a.login),
+    dayOfWeek: new Date(created_at).getDay(),
+    hourOfDay: new Date(created_at).getHours(),
     createdAt: created_at,
     updatedAt: updated_at,
   };
@@ -57,6 +61,8 @@ export function parseIssueComment(comment, org, repo) {
     issueNumber,
     body,
     author: user && user.login,
+    dayOfWeek: new Date(created_at).getDay(),
+    hourOfDay: new Date(created_at).getHours(),
     createdAt: created_at,
     updatedAt: updated_at,
   };
@@ -65,7 +71,7 @@ export function parseIssueComment(comment, org, repo) {
 
 export function parseCommit(commitData, org, repo) {
   const {
-    sha, html_url, commit, author, committer, created_at, updated_at,
+    sha, html_url, commit, author, committer,
   } = commitData;
   return {
     html_url,
@@ -75,7 +81,9 @@ export function parseCommit(commitData, org, repo) {
     message: commit && commit.message,
     author: author && author.login,
     committer: committer && committer.login,
-    createdAt: created_at,
-    updatedAt: updated_at,
+    dayOfWeek: (new Date(commit.author.date)).getDay(),
+    hourOfDay: (new Date(commit.author.date)).getHours(),
+    createdAt: commit.author.date,
+    updatedAt: commit.committer.date,
   };
 }
