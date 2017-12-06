@@ -4,7 +4,7 @@
   "description": "User's activity based on GitHub's assets research.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --inspect src/index.js --exec babel-node",
+    "start": "nodemon --watch src --inspect src/index.js --exec babel-node",
     "build": "babel src -d dist",
     "serve": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
