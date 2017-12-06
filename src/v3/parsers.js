@@ -14,6 +14,12 @@ export function parseRepo(repo) {
 }
 
 
+export function parseMember(member, org, repo) {
+  const { html_url, login } = member;
+  return { html_url, login };
+}
+
+
 export function parseIssue(issue, org, repo) {
   const {
     html_url, title, number, state, body, user, assignees, created_at, updated_at,

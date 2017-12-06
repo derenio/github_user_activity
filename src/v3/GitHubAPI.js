@@ -2,7 +2,7 @@ import linkHeaderParser from 'parse-link-header';
 import request from 'request-promise';
 import { GITHUB_API_URL, SINCE } from '../config';
 import { Logger } from '../libs/logger';
-import { parseCommit, parseIssue, parseIssueComment, parseRepo } from './parsers';
+import { parseCommit, parseIssue, parseIssueComment, parseMember, parseRepo } from './parsers';
 
 const log = Logger('v3/GitHubAPI');
 
@@ -49,14 +49,25 @@ class GitHubAPI {
     return getPages(url, []);
   }
 
-  getOrgRepos = async (user) => {
-    const path = `/users/${user}/repos`;
+  getOrgRepos = async (org) => {
+    const path = `/orgs/${org}/repos`;
     const qs = {
       type: 'all',
     };
     const repos = await this.request({ path, qs });
     const parsedRepos = repos.map(i => parseRepo(i));
     return parsedRepos;
+  }
+
+  getOrgMembers = async (org) => {
+    const path = `/orgs/${org}/members`;
+    const qs = {
+      filter: 'all',
+      role: 'all',
+    };
+    const repos = await this.request({ path, qs });
+    const parsedMembers = repos.map(i => parseMember(i));
+    return parsedMembers;
   }
 
   getRepoIssues = async (owner, repo) => {

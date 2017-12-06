@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import {
-  getOrgRepos, getOrgUserActivities, getRepoCommits, getRepoIssueComments,
-  getRepoIssues } from './controllers';
+  getOrgMembers, getOrgRepos, getOrgUserActivities, getRepoCommits,
+  getRepoIssueComments, getRepoIssues } from './controllers';
 
 
 const v3Router = Router();
-v3Router.route('/users/:org/repos')
+v3Router.route('/orgs/:org/members')
+  .get(getOrgMembers);
+v3Router.route('/orgs/:org/repos')
   .get(getOrgRepos);
-v3Router.route('/users/:org/user-activities')
+v3Router.route('/orgs/:org/user-activities')
   .get(getOrgUserActivities);
 v3Router.route('/repos/:org/:repo/issues')
   .get(getRepoIssues);
