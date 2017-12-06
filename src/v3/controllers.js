@@ -1,6 +1,7 @@
 import GitHubAPI from './GitHubAPI';
 import { GITHUB_TOKEN, SINCE } from '../config';
 import { Logger } from '../libs/logger';
+import { writeData } from '../libs/data';
 
 const github = new GitHubAPI(GITHUB_TOKEN);
 const log = Logger('v3/controllers');
@@ -115,10 +116,11 @@ export async function getOrgUserActivities(req, res) {
     res.status(500).json(error);
     return;
   }
-  // Return the results as a file
-  const now = new Date();
-  const filename = `user-activities-${org}-${SINCE}-${now.toISOString()}.json`;
-  res.setHeader('Content-disposition', `attachment; filename=${filename}`);
   const data = { issues, comments, commits };
+  // Save the data to the "data" directory
+  const to = (new Date()).toISOString();
+  const filename = `user-activities-${org}-${SINCE}-${to}.json`;
+  writeData(filename, data);
+  // Return the data
   res.json(data);
 }

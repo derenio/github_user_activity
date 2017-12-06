@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title GitHub users' activities
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    script(type='text/javascript').
+      $(function() {
+        const data = !{data};
+        const formattedData = !{formattedData};
+        const authors = Array.from(new Set(formattedData.map((elem) => elem.author)));
+        $('#issues').html(data.issues.length);
+        $('#comments').html(data.comments.length);
+        $('#commits').html(data.commits.length);
+        $('#authors').html(JSON.stringify(authors));
+      })
+  body
+    h1 Activities
+    div(id="issues")
+    div(id="comments")
+    div(id="commits")
+    div(id="authors")
