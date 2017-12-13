@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title GitHub users' activities
+    link(href="/static/vis/vis.css" rel="stylesheet" type="text/css")
+  body
+    h1 GitHub's user activities data of #{org}
+    div(id="data-entries")
+      ul
+        each dataFilename, i in dataFilenames
+          li
+            a(href=`/v3/orgs/${org}/user-activities/detail/${dataFilename}` target="_blank")=dataFilename
+
+    div(id="actions")
+      form(action=`/v3/orgs/${org}/user-activities` method="POST" target="_blank")
+        button(type="submit") Fetch the newest #{org} repositories' issues, comments and commits

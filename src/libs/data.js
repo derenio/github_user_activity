@@ -14,10 +14,15 @@ export function writeData(filename, jsonData) {
 }
 
 
-export function loadLatestData() {
+export function getDataFilenames() {
   const paths = fs.readdirSync(DATA_PATH).sort();
-  const lastPath = path.join(DATA_PATH, paths[paths.length - 1]);
-  const jsonStr = fs.readFileSync(lastPath, 'utf8');
+  return paths;
+}
+
+
+export function loadData(filename) {
+  const filepath = path.join(DATA_PATH, filename);
+  const jsonStr = fs.readFileSync(filepath, 'utf8');
   return JSON.parse(jsonStr);
 }
 
@@ -33,6 +38,7 @@ export function formatData(data) {
         repo: elem.repo,
         author: elem.author,
         createdAt: elem.createdAt,
+        updatedAt: elem.updatedAt,
         dayOfWeek: elem.dayOfWeek,
         hourOfDay: elem.hourOfDay,
       };
@@ -40,4 +46,60 @@ export function formatData(data) {
     });
   });
   return results;
+}
+
+
+function groupBy(arr, keyFn) {
+  return arr.reduce((acc, elem) => {
+    const groupName = keyFn(elem);
+    (acc[groupName] = acc[groupName] || []).push(elem);
+    return acc;
+  }, {});
+}
+
+
+export function groupByDate(formattedData) {
+  const dateAndTypeGroups = groupBy(
+    formattedData,
+    elem => `${elem.createdAt.split('T')[0]}`,
+  );
+  const groups = [];
+  Object.entries(dateAndTypeGroups).forEach(([key, items]) => {
+    const [date] = key.split('|');
+    groups.push({ date, items });
+  });
+  return groups;
+}
+
+
+export function groupByDateAndUser(formattedData) {
+  const dateAndAuthorGroups = groupBy(
+    formattedData,
+    elem => `${elem.createdAt.split('T')[0]}|${elem.author}`,
+  );
+  const groups = [];
+  Object.entries(dateAndAuthorGroups).forEach(([key, items]) => {
+    const [date, author] = key.split('|');
+    const grouppedTypes = groupBy(items, elem => elem.type);
+    groups.push({
+      date,
+      author,
+      ...grouppedTypes,
+    });
+  });
+  return groups;
+}
+
+
+export function groupByDateAndType(formattedData) {
+  const dateAndTypeGroups = groupBy(
+    formattedData,
+    elem => `${elem.createdAt.split('T')[0]}|${elem.type}`,
+  );
+  const groups = [];
+  Object.entries(dateAndTypeGroups).forEach(([key, items]) => {
+    const [date, type] = key.split('|');
+    groups.push({ date, type, items });
+  });
+  return groups;
 }

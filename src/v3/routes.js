@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import {
-  getOrgMembers, getOrgRepos, getOrgUserActivities, getRepoCommits,
-  getRepoIssueComments, getRepoIssues } from './controllers';
+  getOrgMembers, getOrgRepos, listOrgUserActivities, getOrgUserActivitiesDetail,
+  fetchOrgUserActivities, getRepoCommits, getRepoIssueComments, getRepoIssues,
+} from './controllers';
 
 
 const v3Router = Router();
@@ -10,7 +11,10 @@ v3Router.route('/orgs/:org/members')
 v3Router.route('/orgs/:org/repos')
   .get(getOrgRepos);
 v3Router.route('/orgs/:org/user-activities')
-  .get(getOrgUserActivities);
+  .get(listOrgUserActivities)
+  .post(fetchOrgUserActivities);
+v3Router.route('/orgs/:org/user-activities/detail/:filename')
+  .get(getOrgUserActivitiesDetail);
 v3Router.route('/repos/:org/:repo/issues')
   .get(getRepoIssues);
 v3Router.route('/repos/:org/:repo/issues/comments')

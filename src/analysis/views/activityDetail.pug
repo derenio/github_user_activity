@@ -1,0 +1,155 @@
+doctype html
+html
+  head
+    title GitHub users' activities detail
+    script(src="/static/js/jquery-3.2.1.min.js")
+    script(src="/static/vis/vis.js" type="text/javascript")
+    link(href="/static/vis/vis.css" rel="stylesheet" type="text/css")
+  body
+    h1 Activity #{dataFilename}
+    div(id="issues")
+    div(id="comments")
+    div(id="commits")
+    div(id="authors")
+    div
+      h2 Daily activity:
+      div(id="dailyActivityGraph")
+    div
+      h2 Groupped items:
+      div(id="grouppedTimeline")
+    div
+      h2 User's items:
+      div(id="userTimeline")
+    div
+      h2 Groupped user's items:
+      div(id="grouppedUserTimeline")
+
+    script(type="text/javascript").
+      $(function() {
+        const data = !{data};
+        const formattedData = !{formattedData};
+        const grouppedByDate = !{grouppedByDate};
+        const grouppedByDateAndUser = !{grouppedByDateAndUser};
+        const grouppedByDateAndType = !{grouppedByDateAndType};
+
+        $('#issues').html(`Issues: ${data.issues.length}`);
+        $('#comments').html(`Comments: ${data.comments.length}`);
+        $('#commits').html(`Commits: ${data.commits.length}`);
+
+        const authors = Array.from(new Set(formattedData.map((elem) => elem.author)));
+        $('#authors').html(`Authors: ${JSON.stringify(authors)}`);
+
+        // Create a 2d bar chart of daily activity
+
+        function getGrouppedDataToGraph(items) {
+          return items.map((elem) => ({ x: elem.date, y: elem.items.length }));
+        }
+
+        const end = new Date();
+        const start = (new Date(end)).setDate(end.getDate() - 45);
+        const dailyActivityGraphContainer = $('#dailyActivityGraph')[0];
+        const grouppedGraphData = getGrouppedDataToGraph(grouppedByDate);
+        const graphOptions = {
+          style: 'bar',
+          start,
+          end,
+          horizontalScroll: true,
+          timeAxis: {scale: 'weekday', step: 1}
+        };
+        var graph2d = new vis.Graph2d(dailyActivityGraphContainer, grouppedGraphData, graphOptions);
+
+
+        // Create a timeline for a groupped items
+
+        function getGrouppedDataToTimeline(items, withAuthor=true) {
+          return items.map((elem, i) => {
+            let content = [];
+            if (withAuthor) {
+              content.push(`${elem.author}<br>`);
+            }
+            if (elem.issues) {
+              content.push('i<br>'.repeat(elem.issues.length));
+            }
+            if (elem.comments) {
+              content.push('c<br>'.repeat(elem.comments.length));
+            }
+            if (elem.commits) {
+              content.push('#<br>'.repeat(elem.commits.length));
+            }
+            return {
+              id: i,
+              content: content.join(''),
+              item: elem,
+              title: elem.author,
+              start: elem.date,
+            };
+          });
+        }
+
+        const grouppedTimelineContainer = $('#grouppedTimeline')[0];
+        const grouppedItems = getGrouppedDataToTimeline(grouppedByDateAndUser, false);
+        const timelineOptions = {
+          minHeight: '400px',
+          margin: {
+            axis: 0,
+            item: {
+              vertical: 0,
+              horizontal: 0,
+            },
+          },
+          horizontalScroll: true,
+          start,
+          end,
+          timeAxis: {scale: 'weekday', step: 1}
+        };
+        const grouppedTimeline = new vis.Timeline(grouppedTimelineContainer, grouppedItems, timelineOptions);
+
+        // Create a timeline for a user
+
+        function getUserItems(data, login) {
+          return data.filter((elem) => elem.author == login);
+        }
+
+        function getFormattedDataToTimeline(items) {
+          return items.map((elem, i) => {
+            let content;
+            switch (elem.type) {
+              case 'issues':
+                content = 'i';
+                break;
+              case 'comments':
+                content = 'c';
+                break;
+              case 'commits':
+                content = '#';
+                break;
+              default:
+                content = '?';
+                break;
+            }
+            return ({
+              id: i,
+              content,
+              title: elem.author,
+              start: elem.createdAt,
+            })
+          });
+        }
+
+        const userLogin = 'elwoodxblues';
+        const userTimelineContainer = $('#userTimeline')[0];
+        const userItems = getFormattedDataToTimeline(getUserItems(formattedData, userLogin));
+        const userTimeline = new vis.Timeline(userTimelineContainer, userItems, timelineOptions);
+
+        // Create a timeline for a groupped user's items
+
+        function getGrouppedUserDataToTimeline(items, login) {
+          const userItems = getUserItems(items, login);
+          const grouppedUserItems = getGrouppedDataToTimeline(userItems, false);
+          return grouppedUserItems;
+        }
+
+        const grouppedUserTimelineContainer = $('#grouppedUserTimeline')[0];
+        const grouppedUserItems = getGrouppedUserDataToTimeline(grouppedByDateAndUser, userLogin);
+        const grouppedUserTimeline = new vis.Timeline(grouppedUserTimelineContainer, grouppedUserItems, timelineOptions);
+      })

@@ -1,7 +1,9 @@
+import path from 'path';
+
 import GitHubAPI from './GitHubAPI';
 import { GITHUB_TOKEN, SINCE } from '../config';
 import { Logger } from '../libs/logger';
-import { writeData } from '../libs/data';
+import { getDataFilenames, loadData, writeData } from '../libs/data';
 
 const github = new GitHubAPI(GITHUB_TOKEN);
 const log = Logger('v3/controllers');
@@ -46,7 +48,32 @@ export async function getRepoCommits(req, res) {
 }
 
 
-export async function getOrgUserActivities(req, res) {
+export async function listOrgUserActivities(req, res) {
+  const { org } = req.params;
+  const dataFilenames = getDataFilenames().filter(name => name.includes(org));
+  const context = {
+    org,
+    dataFilenames,
+  };
+  res.render(path.join(__dirname, '/views/activities_list'), context);
+}
+
+
+export async function getOrgUserActivitiesDetail(req, res) {
+  const { filename } = req.params;
+  let data;
+  try {
+    data = loadData(filename);
+  } catch (error) {
+    log.error(error);
+    res.status(500).json(error);
+    return;
+  }
+  res.json(data);
+}
+
+
+export async function fetchOrgUserActivities(req, res) {
   const { org } = req.params;
   let repos;
   try {
@@ -121,6 +148,6 @@ export async function getOrgUserActivities(req, res) {
   const to = (new Date()).toISOString();
   const filename = `user-activities-${org}-${SINCE}-${to}.json`;
   writeData(filename, data);
-  // Return the data
-  res.json(data);
+  // Redirect to the data page
+  res.redirect(`/v3/orgs/${org}/user-activities/detail/${filename}`);
 }

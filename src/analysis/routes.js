@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { activities } from './controllers';
+import { activitiesList, activityDetail } from './controllers';
 
 
 const analysisRouter = Router();
 analysisRouter.route('/activities')
-  .get(activities);
+  .get(activitiesList);
+analysisRouter.route('/activities/detail/:filename')
+  .get(activityDetail);
 
 export default analysisRouter;

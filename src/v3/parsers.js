@@ -16,7 +16,7 @@ export function parseRepo(repo) {
 }
 
 
-export function parseMember(member, org, repo) {
+export function parseMember(member) {
   const { html_url, login } = member;
   return { html_url, login };
 }
