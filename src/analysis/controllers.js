@@ -2,8 +2,8 @@ import path from 'path';
 
 import { Logger } from '../libs/logger';
 import {
-  getDataFilenames, loadData, formatData,
-  groupByDate, groupByDateAndUser, groupByDateAndType } from '../libs/data';
+  getDataFilenames, loadData, formatData, groupByDate, groupByDateAndUser,
+  groupByDateAndType, groupByDayOfWeek, groupByHourOfDay } from '../libs/data';
 
 const log = Logger('analysis/controllers'); // eslint-disable-line no-unused-vars
 
@@ -23,6 +23,8 @@ export async function activityDetail(req, res) {
   const grouppedByDate = groupByDate(formattedData);
   const grouppedByDateAndUser = groupByDateAndUser(formattedData);
   const grouppedByDateAndType = groupByDateAndType(formattedData);
+  const grouppedByDayOfWeek = groupByDayOfWeek(formattedData);
+  const grouppedByHourOfDay = groupByHourOfDay(formattedData);
   const context = {
     dataFilename: filename,
     // Escape all the slashes in the closing tags of the json string
@@ -31,6 +33,8 @@ export async function activityDetail(req, res) {
     grouppedByDate: JSON.stringify(grouppedByDate, null, 2),
     grouppedByDateAndUser: JSON.stringify(grouppedByDateAndUser, null, 2),
     grouppedByDateAndType: JSON.stringify(grouppedByDateAndType, null, 2),
+    grouppedByDayOfWeek: JSON.stringify(grouppedByDayOfWeek, null, 2),
+    grouppedByHourOfDay: JSON.stringify(grouppedByHourOfDay, null, 2),
   };
   res.render(path.join(__dirname, '/views/activityDetail'), context);
 }

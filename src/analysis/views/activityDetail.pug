@@ -12,6 +12,12 @@ html
     div(id="commits")
     div(id="authors")
     div
+      h2 Day of the week activity:
+      div(id="dayOfWeekGraph")
+    div
+      h2 Hour of the day activity:
+      div(id="hourOfDayGraph")
+    div
       h2 Daily activity:
       div(id="dailyActivityGraph")
     div
@@ -31,6 +37,8 @@ html
         const grouppedByDate = !{grouppedByDate};
         const grouppedByDateAndUser = !{grouppedByDateAndUser};
         const grouppedByDateAndType = !{grouppedByDateAndType};
+        const grouppedByDayOfWeek = !{grouppedByDayOfWeek};
+        const grouppedByHourOfDay = !{grouppedByHourOfDay};
 
         $('#issues').html(`Issues: ${data.issues.length}`);
         $('#comments').html(`Comments: ${data.comments.length}`);
@@ -39,6 +47,60 @@ html
         const authors = Array.from(new Set(formattedData.map((elem) => elem.author)));
         $('#authors').html(`Authors: ${JSON.stringify(authors)}`);
 
+        // Create a 2d bar chart of the "day of the week" activity
+
+        function addDays(date, days) {
+          const dateCopy = new Date(date.valueOf());
+          dateCopy.setDate(date.getDate() + days);
+          return dateCopy;
+        }
+
+        const dayOfWeekGraphContainer = $('#dayOfWeekGraph')[0];
+        const dayOfWeekStart = new Date('2017-12-11T00:00:00Z'); // Monday
+        const dayOfWeekEnd = addDays(dayOfWeekStart, 6); // Sunday
+        const dayOfWeekData = grouppedByDayOfWeek.map(
+          (elem) => ({
+            // Make Sunday (day 0) to be the last day of the week
+            x: addDays(dayOfWeekStart, (elem.dayOfWeek + 6) % 7),
+            y: elem.count,
+            label: { content: elem.count, xOffset: -10, yOffset: -10 },
+          })
+        );
+        const dayOfWeekGraphOptions = {
+          style: 'bar',
+          start: addDays(dayOfWeekStart, -1),
+          end: addDays(dayOfWeekEnd, 1),
+          timeAxis: {scale: 'weekday', step: 1}
+        };
+        var dayOfWeekGraph2d = new vis.Graph2d(dayOfWeekGraphContainer, dayOfWeekData, dayOfWeekGraphOptions);
+
+        // Create a 2d bar chart of the "hour of the day" activity
+
+        function addHours(date, hours) {
+          const dateCopy = new Date(date.valueOf());
+          dateCopy.setHours(date.getHours() + hours);
+          return dateCopy;
+        }
+
+        const hourOfDayGraphContainer = $('#hourOfDayGraph')[0];
+        const hourOfDayStart = new Date('2017-12-11T00:00:00Z');
+        const hourOfDayEnd = new Date('2017-12-12T00:00:00Z');
+        const hourOfDayData = grouppedByHourOfDay.map(
+          (elem) => ({
+            x: addHours(hourOfDayStart, elem.hourOfDay),
+            y: elem.count,
+            label: { content: elem.count, xOffset: -10, yOffset: -10 },
+          })
+        );
+        const hourOfDayGraphOptions = {
+          style: 'bar',
+          start: addHours(hourOfDayStart, -1),
+          end: addHours(hourOfDayEnd, 1),
+          timeAxis: {scale: 'hour', step: 1}
+        };
+        var hourOfDayGraph2d = new vis.Graph2d(
+          hourOfDayGraphContainer, hourOfDayData, hourOfDayGraphOptions);
+
         // Create a 2d bar chart of daily activity
 
         function getGrouppedDataToGraph(items) {
@@ -46,18 +108,16 @@ html
         }
 
         const end = new Date();
-        const start = (new Date(end)).setDate(end.getDate() - 45);
+        const start = addDays(end, -45);
         const dailyActivityGraphContainer = $('#dailyActivityGraph')[0];
         const grouppedGraphData = getGrouppedDataToGraph(grouppedByDate);
         const graphOptions = {
           style: 'bar',
           start,
           end,
-          horizontalScroll: true,
           timeAxis: {scale: 'weekday', step: 1}
         };
         var graph2d = new vis.Graph2d(dailyActivityGraphContainer, grouppedGraphData, graphOptions);
-
 
         // Create a timeline for a groupped items
 

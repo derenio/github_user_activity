@@ -103,3 +103,31 @@ export function groupByDateAndType(formattedData) {
   });
   return groups;
 }
+
+
+export function groupByDayOfWeek(formattedData) {
+  const dayGroups = groupBy(
+    formattedData,
+    elem => elem.dayOfWeek,
+  );
+  const groups = [];
+  Object.entries(dayGroups).forEach(([dayOfWeek, items]) => {
+    const count = items.length;
+    groups.push({ dayOfWeek: parseInt(dayOfWeek, 10), items, count });
+  });
+  return groups;
+}
+
+
+export function groupByHourOfDay(formattedData) {
+  const hourGroups = groupBy(
+    formattedData,
+    elem => elem.hourOfDay,
+  );
+  const groups = [];
+  Object.entries(hourGroups).forEach(([hourOfDay, items]) => {
+    const count = items.length;
+    groups.push({ hourOfDay: parseInt(hourOfDay, 10), items, count });
+  });
+  return groups;
+}
