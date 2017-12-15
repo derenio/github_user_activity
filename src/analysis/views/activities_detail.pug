@@ -63,7 +63,7 @@ html
             // Make Sunday (day 0) to be the last day of the week
             x: addDays(dayOfWeekStart, (elem.dayOfWeek + 6) % 7),
             y: elem.count,
-            label: { content: elem.count, xOffset: -10, yOffset: -10 },
+            label: { content: elem.count, xOffset: -10, yOffset: 20 },
           })
         );
         const dayOfWeekGraphOptions = {
@@ -89,7 +89,7 @@ html
           (elem) => ({
             x: addHours(hourOfDayStart, elem.hourOfDay),
             y: elem.count,
-            label: { content: elem.count, xOffset: -10, yOffset: -10 },
+            label: { content: elem.count, xOffset: -10, yOffset: 20 },
           })
         );
         const hourOfDayGraphOptions = {
@@ -104,7 +104,11 @@ html
         // Create a 2d bar chart of daily activity
 
         function getGrouppedDataToGraph(items) {
-          return items.map((elem) => ({ x: elem.date, y: elem.items.length }));
+          return items.map((elem) => ({
+            x: elem.date,
+            y: elem.items.length,
+            label: { content: elem.items.length, xOffset: -10, yOffset: 20 },
+          }));
         }
 
         const end = new Date();

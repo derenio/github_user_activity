@@ -38,7 +38,7 @@ export async function activityDetail(req, res) {
     grouppedByDayOfWeek: JSON.stringify(grouppedByDayOfWeek, null, 2),
     grouppedByHourOfDay: JSON.stringify(grouppedByHourOfDay, null, 2),
   };
-  res.render(path.join(__dirname, '/views/activity_detail'), context);
+  res.render(path.join(__dirname, '/views/activities_detail'), context);
 }
 
 
