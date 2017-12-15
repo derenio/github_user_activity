@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+    title GitHub users' activities worked on
+    script(src="/static/js/jquery-3.2.1.min.js")
+    script(src="/static/vis/vis.js" type="text/javascript")
+    link(href="/static/vis/vis.css" rel="stylesheet" type="text/css")
+  body
+    h1 "Worked on" of #{dataFilename}
+    div(id="workedOnContainer")
+
+    script(type="text/javascript").
+      $(function() {
+        const workedOnData = !{workedOnData};
+
+        // Create the "worked on" timeline
+
+        function addDays(date, days) {
+          const dateCopy = new Date(date.valueOf());
+          dateCopy.setDate(date.getDate() + days);
+          return dateCopy;
+        }
+
+        function getWorkedOnItems(items) {
+          return items.map((elem, i) => {
+            return {
+              id: i,
+              content: `${elem.author} - ${elem.workedOn}`,
+              item: elem,
+              title: JSON.stringify(elem.workedOnCounts, null, 2),
+              start: elem.date,
+            };
+          });
+        }
+
+        const workedOnContainer = $('#workedOnContainer')[0];
+        const workedOnItems = getWorkedOnItems(workedOnData);
+        const end = new Date();
+        const start = addDays(end, -7);
+        const timelineOptions = {
+          minHeight: '400px',
+          margin: {
+            axis: 0,
+            item: {
+              vertical: 0,
+              horizontal: 0,
+            },
+          },
+          horizontalScroll: true,
+          start,
+          end,
+          timeAxis: {scale: 'weekday', step: 1}
+        };
+        const workedOnTimeline = new vis.Timeline(workedOnContainer, workedOnItems, timelineOptions);
+      });

@@ -131,3 +131,32 @@ export function groupByHourOfDay(formattedData) {
   });
   return groups;
 }
+
+
+function maxProperty(obj) {
+  const sorted = Object.entries(obj).map(([k, v]) => [v, k]).sort();
+  const key = sorted[sorted.length - 1][1];
+  return key;
+}
+
+
+export function getWorkedOn(formattedData) {
+  const dateAndAuthorGroups = groupBy(
+    formattedData,
+    elem => `${elem.createdAt.split('T')[0]}|${elem.author}`,
+  );
+  const groups = [];
+  Object.entries(dateAndAuthorGroups).forEach(([key, items]) => {
+    const [date, author] = key.split('|');
+    const workedOnCounts = {};
+    items.forEach((item) => {
+      const repo = `${item.org}/${item.repo}`;
+      workedOnCounts[repo] = (workedOnCounts[repo] || 0) + 1;
+    });
+    const workedOn = maxProperty(workedOnCounts);
+    groups.push({
+      date, author, workedOn, workedOnCounts, items,
+    });
+  });
+  return groups;
+}

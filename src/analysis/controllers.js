@@ -3,7 +3,8 @@ import path from 'path';
 import { Logger } from '../libs/logger';
 import {
   getDataFilenames, loadData, formatData, groupByDate, groupByDateAndUser,
-  groupByDateAndType, groupByDayOfWeek, groupByHourOfDay } from '../libs/data';
+  groupByDateAndType, groupByDayOfWeek, groupByHourOfDay, getWorkedOn,
+} from '../libs/data';
 
 const log = Logger('analysis/controllers'); // eslint-disable-line no-unused-vars
 
@@ -15,6 +16,7 @@ export async function activitiesList(req, res) {
   };
   res.render(path.join(__dirname, '/views/activities'), context);
 }
+
 
 export async function activityDetail(req, res) {
   const { filename } = req.params;
@@ -36,5 +38,21 @@ export async function activityDetail(req, res) {
     grouppedByDayOfWeek: JSON.stringify(grouppedByDayOfWeek, null, 2),
     grouppedByHourOfDay: JSON.stringify(grouppedByHourOfDay, null, 2),
   };
-  res.render(path.join(__dirname, '/views/activityDetail'), context);
+  res.render(path.join(__dirname, '/views/activity_detail'), context);
+}
+
+
+export async function workedOn(req, res) {
+  const { filename } = req.params;
+  const { login } = req.query;
+  const data = loadData(filename);
+  let formattedData = formatData(data);
+  if (login) {
+    formattedData = formattedData.filter(d => d.author === login);
+  }
+  const workedOnData = getWorkedOn(formattedData);
+  const context = {
+    workedOnData: JSON.stringify(workedOnData, null, 2),
+  };
+  res.render(path.join(__dirname, '/views/worked_on'), context);
 }

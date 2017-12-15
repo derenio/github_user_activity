@@ -10,3 +10,10 @@ html
         each dataFilename, i in dataFilenames
           li
             a(href=`/analysis/activities/detail/${dataFilename}` target="_blank")=dataFilename
+
+    h1 Display worked on of:
+    div(id="worked-on-entries")
+      ul
+        each dataFilename, i in dataFilenames
+          li
+            a(href=`/analysis/activities/worked-on/${dataFilename}` target="_blank")=dataFilename
