@@ -133,10 +133,9 @@ export function groupByHourOfDay(formattedData) {
 }
 
 
-function maxProperty(obj) {
-  const sorted = Object.entries(obj).map(([k, v]) => [v, k]).sort();
-  const key = sorted[sorted.length - 1][1];
-  return key;
+function getPropertyNameWithMaxValue(obj) {
+  const max = Object.entries(obj).reduce((acc, curr) => (acc[1] > curr[1] ? acc : curr));
+  return max[0];
 }
 
 
@@ -153,7 +152,7 @@ export function getWorkedOn(formattedData) {
       const repo = `${item.org}/${item.repo}`;
       workedOnCounts[repo] = (workedOnCounts[repo] || 0) + 1;
     });
-    const workedOn = maxProperty(workedOnCounts);
+    const workedOn = getPropertyNameWithMaxValue(workedOnCounts);
     groups.push({
       date, author, workedOn, workedOnCounts, items,
     });
