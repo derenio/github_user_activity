@@ -126,22 +126,18 @@ export async function fetchOrgUserActivities(req, res) {
     return result;
   }
 
-  function handleError(error) {
-    log.error(error);
-    return [];
-  }
-
   // Await all the promises
   let issues;
   let comments;
   let commits;
   try {
     [issues, comments, commits] = await Promise.all([
-      Promise.all(issuesCalls).then(flatten).catch(handleError),
-      Promise.all(commentsCalls).then(flatten).catch(handleError),
-      Promise.all(commitsCalls).then(flatten).catch(handleError),
+      Promise.all(issuesCalls).then(flatten),
+      Promise.all(commentsCalls).then(flatten),
+      Promise.all(commitsCalls).then(flatten),
     ]);
   } catch (error) {
+    log.error(error);
     res.status(500).json(error);
     return;
   }
