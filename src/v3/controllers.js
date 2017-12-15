@@ -11,9 +11,10 @@ const log = Logger('v3/controllers');
 
 async function getForEnpoint(req, res, endpoint) {
   const { org, repo } = req.params;
+  const { login } = req.query;
   let data;
   try {
-    data = await endpoint(org, repo);
+    data = await endpoint({ org, repo, login });
   } catch (error) {
     log.error(error);
     res.status(500).json(error);
@@ -77,7 +78,7 @@ export async function fetchOrgUserActivities(req, res) {
   const { org } = req.params;
   let repos;
   try {
-    repos = await github.getOrgRepos(org);
+    repos = await github.getOrgRepos({ org });
   } catch (error) {
     log.error(error);
     res.status(500).json(error);
@@ -85,7 +86,7 @@ export async function fetchOrgUserActivities(req, res) {
   }
   let members;
   try {
-    members = await github.getOrgMembers(org);
+    members = await github.getOrgMembers({ org });
   } catch (error) {
     log.error(error);
     res.status(500).json(error);
@@ -110,11 +111,12 @@ export async function fetchOrgUserActivities(req, res) {
   const commentsCalls = [];
   const commitsCalls = [];
   repos.forEach((repo) => {
-    issuesCalls.push(github.getRepoIssues(repo.owner, repo.name)
+    const opts = { org: repo.owner, repo: repo.name };
+    issuesCalls.push(github.getRepoIssues(opts)
       .then(filterMembers).catch(handleRepoError(repo)));
-    commentsCalls.push(github.getRepoIssueComments(repo.owner, repo.name)
+    commentsCalls.push(github.getRepoIssueComments(opts)
       .then(filterMembers).catch(handleRepoError(repo)));
-    commitsCalls.push(github.getRepoCommits(repo.owner, repo.name)
+    commitsCalls.push(github.getRepoCommits(opts)
       .then(filterMembers).catch(handleRepoError(repo)));
   });
 

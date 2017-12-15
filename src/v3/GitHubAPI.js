@@ -49,7 +49,7 @@ class GitHubAPI {
     return getPages(url, []);
   }
 
-  getOrgRepos = async (org) => {
+  getOrgRepos = async ({ org }) => {
     const path = `/orgs/${org}/repos`;
     const qs = {
       type: 'all',
@@ -59,7 +59,7 @@ class GitHubAPI {
     return parsedRepos;
   }
 
-  getOrgMembers = async (org) => {
+  getOrgMembers = async ({ org }) => {
     const path = `/orgs/${org}/members`;
     const qs = {
       filter: 'all',
@@ -70,40 +70,48 @@ class GitHubAPI {
     return parsedMembers;
   }
 
-  getRepoIssues = async (owner, repo) => {
-    const path = `/repos/${owner}/${repo}/issues`;
+  getRepoIssues = async ({ org, repo, login = null }) => {
+    const path = `/repos/${org}/${repo}/issues`;
     const qs = {
       since: SINCE,
       state: 'all',
       sort: 'created',
       direction: 'asc',
     };
+    if (login) {
+      qs.creator = login;
+    }
     const issues = await this.request({ path, qs });
-    const parsedIssues = issues.map(i => parseIssue(i, owner, repo));
+    const parsedIssues = issues.map(i => parseIssue(i, org, repo));
     return parsedIssues;
   }
 
-  getRepoIssueComments = async (owner, repo) => {
-    const path = `/repos/${owner}/${repo}/issues/comments`;
+  getRepoIssueComments = async ({ org, repo, login = null }) => {
+    const path = `/repos/${org}/${repo}/issues/comments`;
     const qs = {
       since: SINCE,
       sort: 'created',
       direction: 'asc',
     };
-    const comments = await this.request({ path, qs });
-    const parsedComments = comments.map(i => parseIssueComment(i, owner, repo));
+    let comments = await this.request({ path, qs });
+    if (login) {
+      comments = comments.filter(c => c.user.login === login);
+    }
+    const parsedComments = comments.map(i => parseIssueComment(i, org, repo));
     return parsedComments;
   }
 
-  getRepoCommits = async (owner, repo) => {
-    const path = `/repos/${owner}/${repo}/commits`;
+  getRepoCommits = async ({ org, repo, login = null }) => {
+    const path = `/repos/${org}/${repo}/commits`;
+    // Commits are returned in descending order sorted by the updated_at field
     const qs = {
       since: SINCE,
-      sort: 'created',
-      direction: 'asc',
     };
+    if (login) {
+      qs.author = login;
+    }
     const commits = await this.request({ path, qs });
-    const parsedCommits = commits.map(i => parseCommit(i, owner, repo));
+    const parsedCommits = commits.map(i => parseCommit(i, org, repo));
     return parsedCommits;
   }
 }
